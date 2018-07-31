@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/start_server"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="start server" />
+
+    <Button
+        android:id="@+id/clean"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="clean" />
+
+    <EditText
+        android:id="@+id/edit_host"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="receiver host" />
+
+    <EditText
+        android:id="@+id/edit_msg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="msg" />
+
+    <Button
+        android:id="@+id/start_client"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="start client/send msg" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+</LinearLayout>
