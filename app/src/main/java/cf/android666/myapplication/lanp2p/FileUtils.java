@@ -19,7 +19,7 @@ public class FileUtils {
         if (sdPath == null) {
             return null;
         }
-        return Arrays.asList(getDirFilePath(sdPath));
+        return getDirFilePath(sdPath) == null ? null : Arrays.asList(getDirFilePath(sdPath));
     }
 
     public static String getSdDir(Context context) {

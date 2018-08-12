@@ -1,10 +1,14 @@
 package cf.android666.myapplication.lanp2p;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,7 +21,6 @@ import android.widget.Toast;
 
 import com.orhanobut.logger.Logger;
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -25,9 +28,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -38,6 +39,8 @@ import java.util.Date;
 import java.util.List;
 
 import cf.android666.myapplication.R;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function5;
 
 import static cf.android666.myapplication.lanp2p.NetUtils.Info.PORT;
 
@@ -82,7 +85,7 @@ public class MainFileActivity extends AppCompatActivity implements View.OnClickL
                 case UPDATE_PROGRESS:
                     if (progress != null) {
                         progress.setText(msg.obj.toString());
-                        Log.d("tag","update list " + msgList.size());
+                        Log.d("tag", "update list " + msgList.size());
                     }
                     break;
                 default:
@@ -90,6 +93,7 @@ public class MainFileActivity extends AppCompatActivity implements View.OnClickL
             }
         }
     };
+    private final int REQUEST_CODE = 0x01;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -98,11 +102,25 @@ public class MainFileActivity extends AppCompatActivity implements View.OnClickL
 
         mContext = MainFileActivity.this;
 
+        Function5<? super Activity, ? super String, ? super Boolean, ? super Integer, ? super String, Unit> listener =
+                (Function5<Activity, String, Boolean, Integer, String, Unit>) (activity, s, aBoolean, integer, s2) -> {
+                    if (aBoolean) {
+                        RequestPermissionUtil.INSTANCE.showDialog(activity, s, REQUEST_CODE, s2, null);
+                    }
+                    return null;
+                };
+        RequestPermissionUtil.INSTANCE.request(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, new Integer[]{REQUEST_CODE},
+                new String[]{"请求读写权限,主要用来读取文件列表，点击确认开始请求读写权限"},
+                listener
+        );
+
         msgList = new ArrayList<>();
         mLocalHost = "local host:" + NetUtils.getIp();
 
         findViewById(R.id.start_server).setOnClickListener(this);
         findViewById(R.id.start_client).setOnClickListener(this);
+        findViewById(R.id.encode).setOnClickListener(this);
+        findViewById(R.id.scan).setOnClickListener(this);
         findViewById(R.id.clean).setOnClickListener(this);
         editTextMsg = findViewById(R.id.edit_msg);
         textView = findViewById(R.id.text);
@@ -114,23 +132,20 @@ public class MainFileActivity extends AppCompatActivity implements View.OnClickL
         recyclerView = findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false));
         mRecyclerAdapter = new RecyclerFileAdapter(mContext, msgList);
-        mRecyclerAdapter.setmListener(new RecyclerFileAdapter.MListener() {
-            @Override
-            public void onClick(int position) {
-                if (files != null) {
-                    String filepath = FileUtils.getSdDir(mContext) + File.separator + files.get(position);
-                    File file = new File(filepath);
-                    Log.d("tag", "mainactivity " + filepath);
-                    if (file.exists() && file.isFile()) {
-                        mSelectFile = file;
-                        Log.d("tag", "mSelectFile = file; ");
-                        startSend();
-                    } else if (file.exists() && file.isDirectory()) {
-                        msgList.clear();
-                        msgList.addAll(Arrays.asList(file.list()));
-                        mRecyclerAdapter.notifyDataSetChanged();
-                        Log.d("tag", "mSelectFile = isDirectory; msgList" + msgList.size());
-                    }
+        mRecyclerAdapter.setmListener(position -> {
+            if (files != null) {
+                String filepath = FileUtils.getSdDir(mContext) + File.separator + files.get(position);
+                File file = new File(filepath);
+                Log.d("tag", "mainactivity " + filepath);
+                if (file.exists() && file.isFile()) {
+                    mSelectFile = file;
+                    Log.d("tag", "mSelectFile = file; ");
+                    startSend();
+                } else if (file.exists() && file.isDirectory()) {
+                    msgList.clear();
+                    msgList.addAll(Arrays.asList(file.list()));
+                    mRecyclerAdapter.notifyDataSetChanged();
+                    Log.d("tag", "mSelectFile = isDirectory; msgList" + msgList.size());
                 }
             }
         });
@@ -141,6 +156,29 @@ public class MainFileActivity extends AppCompatActivity implements View.OnClickL
             msgList.addAll(files);
             mRecyclerAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        Function5<? super Activity, ? super String, ? super Boolean, ? super Integer, ? super String, Unit> listener =
+                (Function5<Activity, String, Boolean, Integer, String, Unit>) (activity, s, aBoolean, integer, s2) -> {
+                    switch (s) {
+                        case Manifest.permission.READ_EXTERNAL_STORAGE:
+                            if (!aBoolean) {
+                                RequestPermissionUtil.INSTANCE.showDialog(activity, s, integer, s2, null);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    return null;
+                };
+        RequestPermissionUtil.INSTANCE.onRequestPermissionsResult(MainFileActivity.this, requestCode, permissions,
+                grantResults, new String[]{"读取文件权限很重要，请授予权限"},
+                listener);
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -164,6 +202,12 @@ public class MainFileActivity extends AppCompatActivity implements View.OnClickL
             case R.id.clean:
                 msgList.clear();
                 mRecyclerAdapter.notifyDataSetChanged();
+                break;
+            case R.id.encode:
+                startActivityForResult(new Intent(mContext, RequestPermissionkotlinDemo.class), 1);
+                break;
+            case R.id.scan:
+
                 break;
             default:
                 break;
@@ -276,8 +320,8 @@ public class MainFileActivity extends AppCompatActivity implements View.OnClickL
                     dataOutputStream.flush();
 
                     total += length;
-                    String progressStr = "**********send progress" + (total*100 / mSelectFile.length())
-                            +" % selectfile"+ mSelectFile.getAbsolutePath();
+                    String progressStr = "**********send progress" + (total * 100 / mSelectFile.length())
+                            + " % selectfile" + mSelectFile.getAbsolutePath();
                     Message msg = handler.obtainMessage(UPDATE_PROGRESS);
                     msg.obj = progressStr;
                     handler.sendMessage(msg);
