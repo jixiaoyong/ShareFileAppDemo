@@ -18,7 +18,7 @@ public class RequestPermissionkotlinDemo : Activity() {
 
         mContext = this
 
-        RequestPermissionUtil.request(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+        var hasPermission = RequestPermissionUtil.request(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
                 arrayOf(REQUEST_CODE),
                 arrayOf("请求读写权限,主要用来读取文件列表，点击确认开始请求读写权限"),
                 object : (Activity, String, Boolean, Int, String) -> Unit {
@@ -44,6 +44,9 @@ public class RequestPermissionkotlinDemo : Activity() {
                     }
                 }
         )
+        if (hasPermission) {
+            //有权限，直接开始...
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>?, grantResults: IntArray?) {

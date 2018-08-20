@@ -38,5 +38,7 @@ dependencies {
     implementation 'com.orhanobut:logger:2.2.0'
     implementation 'com.android.support:recyclerview-v7:27.1.1'
 
-    implementation 'com.google.zxing:core:3.3.3'
+//    implementation 'com.google.zxing:core:3.3.3'
+
+    implementation 'cn.bingoogolapple:bga-qrcode-zxing:1.2.5'
 }

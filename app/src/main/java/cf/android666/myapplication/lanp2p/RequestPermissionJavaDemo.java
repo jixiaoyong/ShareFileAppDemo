@@ -28,10 +28,13 @@ public class RequestPermissionJavaDemo extends Activity {
                     }
                     return null;
                 };
-        RequestPermissionUtil.INSTANCE.request(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, new Integer[]{REQUEST_CODE},
+        boolean hasPermission = RequestPermissionUtil.INSTANCE.request(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, new Integer[]{REQUEST_CODE},
                 new String[]{"请求读写权限,主要用来读取文件列表，点击确认开始请求读写权限"},
                 listener
         );
+        if (hasPermission) {
+            //有权限，直接开始...
+        }
     }
 
     @Override

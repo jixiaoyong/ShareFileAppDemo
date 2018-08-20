@@ -2,9 +2,11 @@ package cf.android666.myapplication.lanp2p;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -16,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +42,9 @@ import java.util.Date;
 import java.util.List;
 
 import cf.android666.myapplication.R;
+import cf.android666.myapplication.qrcode.MainActivity;
+import cn.bingoogolapple.qrcode.core.BGAQRCodeUtil;
+import cn.bingoogolapple.qrcode.zxing.QRCodeEncoder;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function5;
 
@@ -52,8 +58,10 @@ public class MainFileActivity extends AppCompatActivity implements View.OnClickL
 
     private Context mContext;
     private TextView textView;
+    private ImageView mImageView;
     private RecyclerView recyclerView;
     private EditText editTextMsg;
+    private EditText hostEditText;
     private TextView progress;
 
     private String host = "";
@@ -94,6 +102,7 @@ public class MainFileActivity extends AppCompatActivity implements View.OnClickL
         }
     };
     private final int REQUEST_CODE = 0x01;
+    private final int ACTIVITY_REQUEST_CODE = 2;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -115,17 +124,20 @@ public class MainFileActivity extends AppCompatActivity implements View.OnClickL
         );
 
         msgList = new ArrayList<>();
-        mLocalHost = "local host:" + NetUtils.getIp();
 
         findViewById(R.id.start_server).setOnClickListener(this);
         findViewById(R.id.start_client).setOnClickListener(this);
-        findViewById(R.id.encode).setOnClickListener(this);
         findViewById(R.id.scan).setOnClickListener(this);
         findViewById(R.id.clean).setOnClickListener(this);
+        mImageView = findViewById(R.id.qr_code);
         editTextMsg = findViewById(R.id.edit_msg);
         textView = findViewById(R.id.text);
         progress = findViewById(R.id.progress);
+        hostEditText =  findViewById(R.id.edit_host);
+
+        mLocalHost = "local host:" + NetUtils.getIp();
         textView.setText(mLocalHost);
+        showQRCode(NetUtils.getIp());
 
         final List<String> files = FileUtils.getSdFilePath(this);
 
@@ -156,6 +168,10 @@ public class MainFileActivity extends AppCompatActivity implements View.OnClickL
             msgList.addAll(files);
             mRecyclerAdapter.notifyDataSetChanged();
         }
+
+
+
+
     }
 
     @Override
@@ -203,19 +219,23 @@ public class MainFileActivity extends AppCompatActivity implements View.OnClickL
                 msgList.clear();
                 mRecyclerAdapter.notifyDataSetChanged();
                 break;
-            case R.id.encode:
-                startActivityForResult(new Intent(mContext, RequestPermissionkotlinDemo.class), 1);
-                break;
             case R.id.scan:
-
+                startActivityForResult(new Intent(mContext, MainActivity.class),ACTIVITY_REQUEST_CODE);
                 break;
             default:
                 break;
         }
     }
 
+    private void showQRCode(String host) {
+        new Thread(() -> {
+            Bitmap bitmap = QRCodeEncoder.syncEncodeQRCode(host, BGAQRCodeUtil.dp2px(mContext, 150F));
+            runOnUiThread(() -> mImageView.setImageBitmap(bitmap));
+        }).start();
+    }
+
     private void startSend() {
-        final String host = ((EditText) findViewById(R.id.edit_host)).getText().toString();
+        final String host = hostEditText.getText().toString();
         if ("".equals(host)) {
             Toast.makeText(mContext, "host can't be empty!", Toast.LENGTH_SHORT).show();
             return;
@@ -338,4 +358,15 @@ public class MainFileActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (data == null) {
+            return;
+        }
+        if (requestCode == ACTIVITY_REQUEST_CODE) {
+            String s = data.getStringExtra("host");
+            hostEditText.setText(s);
+        }
+    }
 }
