@@ -14,7 +14,28 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+    def web_url = ''
+    signingConfigs{
+        config {
+
+            File file = rootProject.file('local.properties')
+            if (file.exists()) {
+                InputStream inputStream = file.newDataInputStream()
+                Properties properties = new Properties()
+                properties.load(inputStream)
+                web_url = properties.getProperty('web_url')
+            }
+
+        }
+    }
+
     buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            manifestPlaceholders = [ServerUrl:web_url]
+
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -27,18 +48,16 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:1.2.60"
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jre7:1.2.60'
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-
     implementation 'com.orhanobut:logger:2.2.0'
     implementation 'com.android.support:recyclerview-v7:27.1.1'
-
-//    implementation 'com.google.zxing:core:3.3.3'
-
+    //    implementation 'com.google.zxing:core:3.3.3'
     implementation 'cn.bingoogolapple:bga-qrcode-zxing:1.2.5'
+    implementation 'com.google.code.gson:gson:2.2.4'
 }
