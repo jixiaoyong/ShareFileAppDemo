@@ -1,6 +1,7 @@
 package cf.android666.myapplication.web
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -11,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import cf.android666.myapplication.R
 import cf.android666.myapplication.R.id.recycler
+import cf.android666.myapplication.qrcode.MainActivity
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_net.*
 import kotlinx.android.synthetic.main.item_net.view.*
@@ -37,11 +39,10 @@ public class MainActivity : AppCompatActivity() {
         mContext = this
 
         urlStr = Utils.loadManifest(this, "ServerUrl")
-        Log.d("TAG", urlStr)
 
         initView()
-
         getData()
+
 
     }
 
@@ -59,7 +60,7 @@ public class MainActivity : AppCompatActivity() {
 
                 var input = conn.inputStream
                 var jsonStr = getStringFromInputStream(input)
-                print(jsonStr)
+                Log.d("TAG",jsonStr)
                 mData = Gson().fromJson(jsonStr, JsonClass::class.java).arr
                 runOnUiThread(Runnable {
                     recycler.adapter.notifyDataSetChanged()
@@ -106,6 +107,24 @@ public class MainActivity : AppCompatActivity() {
                         "\nemail:${mData[position].email}" +
                         "\ncreate_time:${mData[position].create_time}"
             }
+
+        }
+
+        refresh_btn.setOnClickListener {
+            if (!api_url.text.toString().isEmpty()) {
+                urlStr = api_url.text.toString()
+            }
+            getData()
+        }
+        scan_btn.setOnClickListener {
+            startActivityForResult(Intent(mContext, MainActivity::class.java),1)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1) {
+            api_url.setText(data?.getStringExtra("host"))
 
         }
     }
