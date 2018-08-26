@@ -42,8 +42,6 @@ public class MainActivity : AppCompatActivity() {
 
         initView()
         getData()
-
-
     }
 
     private var urlStr = ""
@@ -103,8 +101,16 @@ public class MainActivity : AppCompatActivity() {
             override fun onBindViewHolder(holder: MViewHolder, position: Int) {
                 holder.itemView.text.text = "username :${mData[position].username}" +
                         "\nage:${mData[position].age}" +
-                        "\nemail:${mData[position].email}" +
+                        "\nemail:${mData[position].email}"
                         "\ncreate_time:${mData[position].create_time}"
+                holder.itemView.text.setOnClickListener{
+                    var intent1 = Intent(mContext, PeopleActivity::class.java)
+                    intent1.putExtra("name", mData[position].username)
+                    intent1.putExtra("age", mData[position].age.toString())
+                    intent1.putExtra("email", mData[position].email)
+                    intent1.putExtra("create_time", mData[position].create_time)
+                    startActivity(intent1)
+                }
             }
 
         }

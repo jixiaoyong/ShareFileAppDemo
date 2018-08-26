@@ -25,6 +25,7 @@
         </activity>
 
         <activity android:name=".qrcode.MainActivity" />
+        <activity android:name=".web.PeopleActivity" />
 
         <meta-data android:name="ServerUrl" android:value="${ServerUrl}"/>
     </application>
