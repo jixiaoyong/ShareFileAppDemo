@@ -6,5 +6,5 @@ package cf.android666.myapplication.web
  */
 class JsonClass(var arr: Array<Arr>) {
 
-    data class Arr(var id: Int, var username: String, var age: Int, var email: String, var create_time: Int)
+    data class Arr(var id: Int, var username: String, var age: Int, var email: String, var create_time: String)
 }

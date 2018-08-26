@@ -60,7 +60,6 @@ public class MainActivity : AppCompatActivity() {
 
                 var input = conn.inputStream
                 var jsonStr = getStringFromInputStream(input)
-                Log.d("TAG",jsonStr)
                 mData = Gson().fromJson(jsonStr, JsonClass::class.java).arr
                 runOnUiThread(Runnable {
                     recycler.adapter.notifyDataSetChanged()
@@ -125,7 +124,6 @@ public class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1) {
             api_url.setText(data?.getStringExtra("host"))
-
         }
     }
 
