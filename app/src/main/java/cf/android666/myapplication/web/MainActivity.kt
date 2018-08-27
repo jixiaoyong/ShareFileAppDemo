@@ -2,7 +2,6 @@ package cf.android666.myapplication.web
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
@@ -10,8 +9,8 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import cf.android666.myapplication.R
-import cf.android666.myapplication.R.id.recycler
 import cf.android666.myapplication.qrcode.MainActivity
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_net.*
@@ -20,16 +19,16 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
-import java.net.Socket
+import java.net.SocketTimeoutException
 import java.net.URL
 
 /**
  * Created by jixiaoyong on 2018/8/25.
  * email:jixiaoyong1995@gmail.com
  */
-public class MainActivity : AppCompatActivity() {
+ class MainActivity : AppCompatActivity() {
 
-    private lateinit var mContext:Context
+    private lateinit var mContext: Context
 
     private var mData: Array<JsonClass.Arr> = arrayOf()
 
@@ -46,22 +45,30 @@ public class MainActivity : AppCompatActivity() {
 
     private var urlStr = ""
 
-    private fun getData(){
+    private fun getData() {
         Thread(Runnable {
             var url = URL(urlStr)
+            Log.d("TAG","url is $urlStr")
             var conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "GET"
             conn.readTimeout = 5000
-            conn.connectTimeout = 10000
+            conn.connectTimeout = 30000
 
-            if (conn.responseCode == 200) {
+            try {
+                if (conn.responseCode == 200) {
 
-                var input = conn.inputStream
-                var jsonStr = getStringFromInputStream(input)
-                mData = Gson().fromJson(jsonStr, JsonClass::class.java).arr
-                runOnUiThread(Runnable {
-                    recycler.adapter.notifyDataSetChanged()
-                })
+                    var input = conn.inputStream
+                    var jsonStr = getStringFromInputStream(input)
+                    mData = Gson().fromJson(jsonStr, JsonClass::class.java).arr
+                    runOnUiThread(Runnable {
+                        recycler.adapter.notifyDataSetChanged()
+                    })
+                }
+            } catch (e: SocketTimeoutException) {
+                runOnUiThread {
+                    Toast.makeText(mContext, "数据请求超时，请稍后重试", Toast.LENGTH_SHORT).show()
+                }
+                e.printStackTrace()
             }
 
         }).start()
@@ -101,9 +108,9 @@ public class MainActivity : AppCompatActivity() {
             override fun onBindViewHolder(holder: MViewHolder, position: Int) {
                 holder.itemView.text.text = "username :${mData[position].username}" +
                         "\nage:${mData[position].age}" +
-                        "\nemail:${mData[position].email}"
+                        "\nemail:${mData[position].email}" +
                         "\ncreate_time:${mData[position].create_time}"
-                holder.itemView.text.setOnClickListener{
+                holder.itemView.text.setOnClickListener {
                     var intent1 = Intent(mContext, PeopleActivity::class.java)
                     intent1.putExtra("name", mData[position].username)
                     intent1.putExtra("age", mData[position].age.toString())
@@ -122,7 +129,7 @@ public class MainActivity : AppCompatActivity() {
             getData()
         }
         scan_btn.setOnClickListener {
-            startActivityForResult(Intent(mContext, MainActivity::class.java),1)
+            startActivityForResult(Intent(mContext, MainActivity::class.java), 1)
         }
     }
 
@@ -133,5 +140,5 @@ public class MainActivity : AppCompatActivity() {
         }
     }
 
-    class MViewHolder(itemView: View) :RecyclerView.ViewHolder(itemView)
+    class MViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 }
