@@ -25,7 +25,7 @@ object RequestPermissionUtil {
     fun request(activity: Activity, permissions: Array<String>, requestCodes: Array<Int>,
                 @Nullable descriptions: Array<String>,
                 @Nullable showDescriptionsListener: ((activity: Activity, permission: String,
-                                                      shouldShowRequestPermissionRationale: Boolean, requestCode: Int, description: String) -> Unit)?): Boolean {
+                                                      shouldShowRequestPermissionRationale: Boolean, requestCode: Int, description: String) -> Unit)?):  Boolean{
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true

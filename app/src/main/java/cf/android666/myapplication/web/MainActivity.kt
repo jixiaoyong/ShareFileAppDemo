@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import cf.android666.myapplication.R
+import cf.android666.myapplication.lanp2p.RequestPermissionUtil
 import cf.android666.myapplication.qrcode.MainActivity
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_net.*
@@ -41,6 +42,8 @@ import java.net.URL
 
         initView()
         getData()
+
+
     }
 
     private var urlStr = ""
