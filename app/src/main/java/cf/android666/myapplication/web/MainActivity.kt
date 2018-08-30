@@ -27,7 +27,7 @@ import java.net.URL
  * Created by jixiaoyong on 2018/8/25.
  * email:jixiaoyong1995@gmail.com
  */
- class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var mContext: Context
 
@@ -38,11 +38,10 @@ import java.net.URL
         setContentView(R.layout.activity_net)
         mContext = this
 
-        urlStr = Utils.loadManifest(this, "ServerUrl")
+        urlStr = Utils.loadManifest(this, "ServerUrl") + "?request_code=1"
 
         initView()
         getData()
-
 
     }
 
@@ -51,7 +50,7 @@ import java.net.URL
     private fun getData() {
         Thread(Runnable {
             var url = URL(urlStr)
-            Log.d("TAG","url is $urlStr")
+            Log.d("TAG", "url is $urlStr")
             var conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "GET"
             conn.readTimeout = 5000
@@ -115,6 +114,7 @@ import java.net.URL
                         "\ncreate_time:${mData[position].create_time}"
                 holder.itemView.text.setOnClickListener {
                     var intent1 = Intent(mContext, PeopleActivity::class.java)
+                    intent1.putExtra("id", mData[position].id)
                     intent1.putExtra("name", mData[position].username)
                     intent1.putExtra("age", mData[position].age.toString())
                     intent1.putExtra("email", mData[position].email)
