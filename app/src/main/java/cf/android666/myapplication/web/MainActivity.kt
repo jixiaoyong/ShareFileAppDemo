@@ -13,6 +13,7 @@ import android.widget.Toast
 import cf.android666.myapplication.R
 import cf.android666.myapplication.lanp2p.RequestPermissionUtil
 import cf.android666.myapplication.qrcode.MainActivity
+import cf.android666.myapplication.web.Utils.getStringFromInputStream
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_net.*
 import kotlinx.android.synthetic.main.item_net.view.*
@@ -77,23 +78,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    @Throws(IOException::class)
-    private fun getStringFromInputStream(`is`: InputStream): String {
-        val os = ByteArrayOutputStream()
-        val buffer = ByteArray(1024)
-        var len = -1
-        while (true) {
-            len = `is`.read(buffer)
-            if (len == -1) {
-                break
-            }
-            os.write(buffer, 0, len)
-        }
-        `is`.close()
-        val state = os.toString() //把字节流转字符串
-        os.close()
-        return state
-    }
 
     private fun initView() {
 
@@ -110,7 +94,7 @@ class MainActivity : AppCompatActivity() {
             override fun onBindViewHolder(holder: MViewHolder, position: Int) {
                 holder.itemView.text.text = "username :${mData[position].username}" +
                         "\nage:${mData[position].age}" +
-                        "\nemail:${mData[position].email}" +
+                        "\nmsg:${mData[position].email}" +
                         "\ncreate_time:${mData[position].create_time}"
                 holder.itemView.text.setOnClickListener {
                     var intent1 = Intent(mContext, PeopleActivity::class.java)

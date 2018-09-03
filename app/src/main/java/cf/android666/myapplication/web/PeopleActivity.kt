@@ -7,6 +7,9 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import cf.android666.myapplication.R
+import cf.android666.myapplication.web.Utils.getStringFromInputStream
+import com.google.gson.Gson
+import com.orhanobut.logger.Logger
 import kotlinx.android.synthetic.main.activity_people.*
 import java.io.OutputStream
 import java.net.HttpURLConnection
@@ -52,7 +55,6 @@ class PeopleActivity : AppCompatActivity(), View.OnClickListener {
         Thread {
             var urlStr = Utils.loadManifest(this, "ServerUrl")
             var url = URL(urlStr)
-            Log.d("TAG", "url is $urlStr")
             var conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "POST"
             conn.setRequestProperty("request_key", "value")
@@ -72,6 +74,11 @@ class PeopleActivity : AppCompatActivity(), View.OnClickListener {
                             "&email=${email.text}&id=${intent.getIntExtra("id",-1)}"
                     output.write(string.toByteArray())
                     output.flush()
+
+                    var input = conn.inputStream
+                    var jsonStr = getStringFromInputStream(input)
+
+                    Logger.d(jsonStr)
 
                 }
             } catch (e: SocketTimeoutException) {
