@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.orhanobut.logger.Logger;
 
@@ -23,7 +22,7 @@ import static cf.android666.myapplication.lanp2p.NetUtils.Info.PORT;
  * Created by jixiaoyong on 2018/7/26.
  * email:jixiaoyong1995@gmail.com
  */
-public class P2PServicer extends Service {
+public class P2PService extends Service {
 
     private static boolean SERVER_RUN = true;
     private ServerListener listener;
@@ -32,21 +31,16 @@ public class P2PServicer extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        Logger.d("P2PServicer onBind");
+        Logger.d("P2PService onBind");
         return null;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Logger.d("P2PServicer onCreate");
+        Logger.d("P2PService onCreate");
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                startServer();
-            }
-        }).start();
+        new Thread(() -> startServer()).start();
     }
 
     private void startServer() {
@@ -58,7 +52,7 @@ public class P2PServicer extends Service {
                 Socket socket = serverSocket.accept();
                 Logger.d("socket = " + socket);
                 InetAddress s1 = socket.getInetAddress();
-                Logger.d("s "+ s1.getHostAddress());
+                Logger.d("s " + s1.getHostAddress());
                 InputStream inputStream = socket.getInputStream();
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 

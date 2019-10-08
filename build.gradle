@@ -4,6 +4,7 @@ buildscript {
     ext.kotlin_version = '1.2.51'
     repositories {
         google()
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
         jcenter()
         mavenCentral() // for green dao
         maven { url 'https://dl.bintray.com/jixiaoyong/maven' }
@@ -20,6 +21,7 @@ buildscript {
 allprojects {
     repositories {
         google()
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
         jcenter()
         maven { url 'https://dl.bintray.com/jixiaoyong/maven' }
     }
